@@ -13,33 +13,61 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 public class TestDBConfig {
 
 	protected Log log = LogFactory.getLog(TestDBConfig.class);
 
-	@Bean
-	@ConfigurationProperties(prefix="test.datasource")
+	@Bean(name="test.ds")
+	@ConfigurationProperties(prefix="test.datasource") //from application.properties
 	public DataSource createDataSource() {
-		log.info("DataSource : DataSource bean creation for test db");
-		return DataSourceBuilder.create().build();
+		DataSource ds = DataSourceBuilder.create().build();
+		if(ds != null) {
+			log.info("@bean(name=\"test.ds\") creation success");
+		} else {
+			new NullPointerException("@bean(name=\"test_DataSource\") creation failed");
+		}
+		return ds;
 	}
 
+	@Bean(name="test.tx")
+    public PlatformTransactionManager transactionManager(@Qualifier("test.ds") DataSource ds) {
+        DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(ds);
+        transactionManager.setGlobalRollbackOnParticipationFailure(false);
+        if(transactionManager != null) {
+        	log.info("@bean(name=\"transactionManager\") creation success");
+        }
+        return transactionManager;
+    }
 
-	@Bean(name="factory1")
-	public SqlSessionFactory sqlSessionFactory1(DataSource ds) throws Exception {
+
+	@Bean(name="test.ssf")
+	public SqlSessionFactory sqlSessionFactory(@Qualifier("test.ds") DataSource ds) throws Exception {
 		SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
 		bean.setDataSource(ds);
 		bean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources("classpath:mappers/*.xml"));
-		log.info("SqlSessionFactory : SqlSessionFactory bean creation for test db");
-		return bean.getObject();
+		SqlSessionFactory ssf = bean.getObject();
+
+		if(ssf != null) {
+			log.info("@bean(name=\"test.ssf\") creation success");
+		} else {
+			new NullPointerException("@bean(name=\"test.ssf\") creation failed");
+		}
+		return ssf;
 	}
 
-	@Bean(name="test_oracle1")
-	public SqlSessionTemplate sqlSession1(@Qualifier("factory1") SqlSessionFactory factoryBean) {
-		log.info("SqlSessionTeplate : SqlSessionTemplate bean creation for test db");
-		return new SqlSessionTemplate(factoryBean);
+	@Bean(name="test.sst")
+	public SqlSessionTemplate sqlSession1(@Qualifier("test.ssf") SqlSessionFactory factoryBean) {
+		SqlSessionTemplate sst = new SqlSessionTemplate(factoryBean);
+
+		if(sst != null) {
+			log.info("@bean(name=\"test.sst\") creation success");
+		}
+
+		return sst;
 	}
 
 }

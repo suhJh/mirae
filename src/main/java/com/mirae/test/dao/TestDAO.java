@@ -8,24 +8,32 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 @Service
-public class TestDAO {
+public class TestDAO extends DefaultTransactionDefinition {
 
 	protected Log log = LogFactory.getLog(TestDAO.class);
 
 	@Autowired
-	@Qualifier("test_oracle1")
-	SqlSessionTemplate template1;
+	@Qualifier("test.sst")
+	SqlSessionTemplate template;
 
-
+	@Autowired
+	@Qualifier("test.tx")
+	PlatformTransactionManager tx;
 
 	public <P> Integer insert (P parameter) {
-		return template1.insert("test.test_insert", parameter);
+		return template.insert("test.test_insert", parameter);
 	}
 
 	public <R, P> List<R> selectList (P parameter) {
-		return template1.selectList("test.test_select", parameter);
+		TransactionStatus status = tx.getTransaction(this);
+		List<R> r = template.selectList("test.test_select", parameter);
+		tx.commit(status);
+		return r;
 	}
 
 
