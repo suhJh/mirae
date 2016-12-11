@@ -14,7 +14,7 @@ public class ServletInitializer extends SpringBootServletInitializer {
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
 
-		log.info("initializer starts");
+		log.info("**initializer starts**");
 
 		PropertiesInitializr.addDefaultProfile(application.application());
 		return application.sources(MiraeApplication.class);
