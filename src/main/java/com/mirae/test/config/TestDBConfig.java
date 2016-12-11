@@ -21,6 +21,7 @@ public class TestDBConfig {
 
 	protected Log log = LogFactory.getLog(TestDBConfig.class);
 
+	// 1. 데이터소스 생성
 	@Bean(name="test.ds")
 	@ConfigurationProperties(prefix="test.datasource") //from application.properties
 	public DataSource createDataSource() {
@@ -33,6 +34,7 @@ public class TestDBConfig {
 		return ds;
 	}
 
+	// 2. 데이터소스에 트랜잭션 매니져연결
 	@Bean(name="test.tx")
     public PlatformTransactionManager transactionManager(@Qualifier("test.ds") DataSource ds) {
         DataSourceTransactionManager transactionManager = new DataSourceTransactionManager(ds);
@@ -43,7 +45,7 @@ public class TestDBConfig {
         return transactionManager;
     }
 
-
+	// 3. 데이터소스를 sql세션 팩토리에 주입
 	@Bean(name="test.ssf")
 	public SqlSessionFactory sqlSessionFactory(@Qualifier("test.ds") DataSource ds) throws Exception {
 		SqlSessionFactoryBean bean = new SqlSessionFactoryBean();
@@ -59,8 +61,9 @@ public class TestDBConfig {
 		return ssf;
 	}
 
+	// 4. sql세션 팩토리를 sql세션템플릿에 주입
 	@Bean(name="test.sst")
-	public SqlSessionTemplate sqlSession1(@Qualifier("test.ssf") SqlSessionFactory factoryBean) {
+	public SqlSessionTemplate sqlSession(@Qualifier("test.ssf") SqlSessionFactory factoryBean) {
 		SqlSessionTemplate sst = new SqlSessionTemplate(factoryBean);
 
 		if(sst != null) {

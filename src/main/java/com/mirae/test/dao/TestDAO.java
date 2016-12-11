@@ -15,6 +15,8 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 @Service
 public class TestDAO extends DefaultTransactionDefinition {
 
+	private static final long serialVersionUID = 1L;
+
 	protected Log log = LogFactory.getLog(TestDAO.class);
 
 	@Autowired

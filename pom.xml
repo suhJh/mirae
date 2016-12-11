@@ -152,6 +152,14 @@
 			<artifactId>groovy</artifactId>
 		</dependency>
 
+		<!-- rxJava -->
+		<dependency>
+		    <groupId>io.reactivex</groupId>
+		    <artifactId>rxjava</artifactId>
+		    <version>1.2.3</version>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>
